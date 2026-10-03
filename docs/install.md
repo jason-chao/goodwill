@@ -45,6 +45,16 @@ public_url = "https://stats.example.com"    # shown in the tracking snippet
 
 Without `trusted_proxies`, every request appears to come from the proxy, and all your visitors are counted as one. goodwill warns about this at startup.
 
+If the proxy is a CDN or a tunnel, it may put the visitor's address in a header of its own rather than `X-Forwarded-For`. Name that header in `client_ip_header`. Cloudflare, for example, uses `CF-Connecting-IP`:
+
+```toml
+[server]
+trusted_proxies = ["127.0.0.1"]             # where the tunnel or proxy connects from
+client_ip_header = "CF-Connecting-IP"
+```
+
+Only trust such a header when nothing but the proxy can reach the public listener; otherwise anyone can set it.
+
 Your reverse proxy sees every visitor's address. If it writes access logs, those logs hold what goodwill is careful not to store. Turn them off for this site, or remove addresses from them.
 
 ## Reaching the dashboard

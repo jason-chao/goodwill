@@ -200,7 +200,7 @@ var (
 		"instagram.com", "reddit.com", "youtube.com", "youtu.be", "tiktok.com", "pinterest.", "threads.net",
 		"threads.com", "bsky.app", "news.ycombinator.com", "lobste.rs", "whatsapp.com", "t.me", "telegram.org",
 		"weibo.com", "vk.com", "discord.com", "snapchat.com"}
-	aiHosts = []string{"chatgpt.com", "chat.openai.com", "perplexity.ai", "gemini.google.com",
+	aiHosts = []string{"chatgpt.com", "chat.openai.com", "perplexity.ai", "claude.ai", "gemini.google.com",
 		"copilot.microsoft.com", "chat.mistral.ai", "chat.deepseek.com", "you.com", "phind.com"}
 	paidMediums = map[string]bool{"cpc": true, "ppc": true, "paid": true, "paidsearch": true, "paid-search": true,
 		"paidsocial": true, "paid-social": true, "display": true, "cpm": true, "banner": true, "ads": true, "ad": true}

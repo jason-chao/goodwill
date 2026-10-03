@@ -81,6 +81,7 @@ func TestChannel(t *testing.T) {
 		{"t.co", "", "", "social"},
 		{"old.reddit.com", "", "", "social"},
 		{"chatgpt.com", "", "", "ai"},
+		{"claude.ai", "", "", "ai"},
 		{"blog.example.org", "", "", "referral"},
 		{"google.com", "google", "cpc", "paid"},
 		{"", "newsletter", "email", "email"},
