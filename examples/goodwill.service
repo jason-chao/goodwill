@@ -1,0 +1,40 @@
+# Example systemd unit. Adjust the paths, then:
+#
+#   sudo useradd --system --home /var/lib/goodwill --shell /usr/sbin/nologin goodwill
+#   sudo install -d -o goodwill -g goodwill -m 0750 /var/lib/goodwill
+#   sudo install -m 0755 goodwill /usr/local/bin/goodwill
+#   sudo install -m 0640 -g goodwill goodwill.toml /etc/goodwill.toml
+#   sudo systemctl enable --now goodwill
+
+[Unit]
+Description=goodwill web analytics
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=goodwill
+Group=goodwill
+ExecStart=/usr/local/bin/goodwill serve -config /etc/goodwill.toml
+Restart=on-failure
+RestartSec=2
+
+# A soft ceiling for the Go heap, and a hard one for the whole process.
+Environment=GOMEMLIMIT=64MiB
+MemoryMax=128M
+
+# Sandboxing
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+ReadWritePaths=/var/lib/goodwill
+
+[Install]
+WantedBy=multi-user.target

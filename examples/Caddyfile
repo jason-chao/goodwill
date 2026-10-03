@@ -1,0 +1,17 @@
+# Example reverse proxy for the public listener, using Caddy.
+#
+# Only the tracker script and the event endpoints are exposed. The dashboard
+# listens on a separate address and is not proxied here.
+
+stats.example.com {
+	@public path /script.js /api/send /api/batch /api/heartbeat
+	handle @public {
+		reverse_proxy 127.0.0.1:8080
+	}
+	handle {
+		respond 404
+	}
+
+	# The reverse proxy sees every visitor's address. Leave access logging
+	# off, or strip addresses from it, if you do not want them kept.
+}

@@ -1,0 +1,51 @@
+# Example configuration. Every setting is optional; the values shown are the
+# defaults unless a comment says otherwise. Each one can also be set through
+# the environment variable named beside it.
+
+[server]
+# Serves the tracker script and receives events. Put a reverse proxy with
+# HTTPS in front of it.                                 GOODWILL_PUBLIC_LISTEN
+public_listen = "127.0.0.1:8080"
+
+# Serves the dashboard. Keep it on loopback or on a private network address;
+# it should not be reachable from the internet.          GOODWILL_ADMIN_LISTEN
+admin_listen = "127.0.0.1:8081"
+
+# Reverse proxies whose client-address header is believed. Without this,
+# every visitor behind the proxy looks like one visitor.
+# Default: none.                                      GOODWILL_TRUSTED_PROXIES
+trusted_proxies = ["127.0.0.1"]
+
+# The header the proxy puts the visitor's address in.
+#                                                    GOODWILL_CLIENT_IP_HEADER
+client_ip_header = "X-Forwarded-For"
+
+# The public address of this server, shown in the tracking snippet.
+# Default: none.                                           GOODWILL_PUBLIC_URL
+public_url = "https://stats.example.com"
+
+# Mark the dashboard session cookie HTTPS-only. Turn this on when the
+# dashboard is served over HTTPS.                      GOODWILL_SECURE_COOKIES
+secure_cookies = false
+
+[database]
+# The SQLite database file. It is created on first start.
+#                                                       GOODWILL_DATABASE_PATH
+path = "/var/lib/goodwill/goodwill.db"
+
+[geo]
+# An optional MaxMind DB (.mmdb) file, such as GeoLite2 City or DB-IP City
+# Lite. It replaces the built-in country database and enables region and
+# city lookups for sites that ask for them. Default: none.   GOODWILL_GEO_PATH
+# path = "/var/lib/goodwill/GeoLite2-City.mmdb"
+
+# Credit shown in the dashboard footer when geo.path is set, if the
+# database's licence asks for one.                    GOODWILL_GEO_ATTRIBUTION
+# attribution = "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com"
+
+[limits]
+# Events accepted per minute from one address.      GOODWILL_EVENTS_PER_MINUTE
+events_per_minute = 600
+
+# Largest accepted event request, in bytes.            GOODWILL_MAX_BODY_BYTES
+max_body_bytes = 65536

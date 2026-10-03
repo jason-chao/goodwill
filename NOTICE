@@ -1,0 +1,40 @@
+goodwill is distributed under the MIT licence (see LICENSE). It includes or
+is built with the following third-party work.
+
+Bundled in this repository
+--------------------------
+
+tracker/script.js
+    The browser tracker from Umami (https://github.com/umami-software/umami),
+    built unmodified from the release named in tracker/VERSION.
+    Copyright (c) 2022 Umami Software, Inc. MIT licence: tracker/LICENSE.
+
+web/static/vendor/htmx.min.js
+    htmx (https://github.com/bigskysoftware/htmx). Zero-Clause BSD licence:
+    web/static/vendor/htmx.LICENSE.
+
+web/static/vendor/uplot.min.js, uplot.min.css
+    uPlot (https://github.com/leeoniya/uPlot). Copyright (c) 2022 Leon Sorokin.
+    MIT licence: web/static/vendor/uplot.LICENSE.
+
+Included in binaries built with "make build"
+--------------------------------------------
+
+IP to Country Lite database by DB-IP (https://db-ip.com), licensed under the
+Creative Commons Attribution 4.0 International licence
+(https://creativecommons.org/licenses/by/4.0/). The database is downloaded at
+build time and is not part of this repository. The dashboard footer carries
+the attribution "IP geolocation by DB-IP" whenever this database is in use.
+
+Go modules compiled into the binary
+-----------------------------------
+
+modernc.org/sqlite and its supporting modules      BSD-3-Clause
+github.com/medama-io/go-useragent                  MIT
+zgo.at/isbot                                       MIT
+github.com/oschwald/maxminddb-golang               ISC
+github.com/BurntSushi/toml                         MIT
+golang.org/x/crypto, x/sys, x/term                 BSD-3-Clause
+
+Their full licence texts are in each module's source, which "go mod download"
+places in the module cache.

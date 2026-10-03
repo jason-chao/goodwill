@@ -1,0 +1,10 @@
+{{template "top" .Base}}
+<div class="pagehead">
+  <h1>{{.Site.Name}}</h1>
+  {{template "sitenav" .Nav}}
+</div>
+<p class="showing">Updates every 5 seconds.</p>
+<div id="realtime" hx-get="/sites/{{.Site.ID}}/realtime/data" hx-trigger="every 5s" hx-swap="innerHTML">
+{{template "realtime-data" .}}
+</div>
+{{template "bottom" .Base}}

@@ -1,0 +1,20 @@
+{{template "top" .Base}}
+<div class="pagehead"><h1>Sites</h1></div>
+{{if .Cards}}
+<div class="sites">
+  {{range .Cards}}<a class="card site" href="/sites/{{.Site.ID}}">
+    <div class="site-name">{{.Site.Name}}</div>
+    <div class="site-nums">
+      <div><span class="tile-label">Visitors today</span><span class="site-value">{{num .Visitors}}</span></div>
+      <div><span class="tile-label">Page views today</span><span class="site-value">{{num .Views}}</span></div>
+    </div>
+    <div class="site-trend">{{.Spark}}<span class="muted">{{num .Total}} page views in {{$.SparkDays}} days</span></div>
+  </a>{{end}}
+</div>
+{{else}}
+<div class="card">
+  <p class="empty">No sites yet. Add one from the command line:</p>
+  <pre><code>goodwill site add --name "My site" --domains example.com</code></pre>
+</div>
+{{end}}
+{{template "bottom" .Base}}

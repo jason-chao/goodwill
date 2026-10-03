@@ -1,0 +1,61 @@
+{{template "top" .Base}}
+<div class="pagehead">
+  <h1>{{.Site.Name}}</h1>
+  {{template "sitenav" .Nav}}
+</div>
+
+<div class="filters">
+  <div class="pills" role="group" aria-label="Date range">
+    {{range .Periods}}<a class="pill" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>{{.Label}}</a>{{end}}
+  </div>
+  <form class="range" method="get" action="/sites/{{.Site.ID}}">
+    <input type="hidden" name="period" value="custom">
+    {{range .Chips}}<input type="hidden" name="f" value="{{.Dim}}:{{.Value}}">{{end}}
+    <label>From <input type="date" name="from" value="{{.From}}" required></label>
+    <label>to <input type="date" name="to" value="{{.To}}" required></label>
+    <button type="submit" class="plain">Apply</button>
+  </form>
+  {{if .Chips}}<div class="chips" aria-label="Active filters">
+    {{range .Chips}}<a class="chip" href="{{.RemoveURL}}" title="Remove this filter">{{.Label}}: {{.Value}} <span aria-hidden="true">×</span></a>{{end}}
+  </div>{{end}}
+</div>
+
+<p class="showing">{{.Period.Label}}{{if .SaltNote}} · {{.SaltNote}}{{end}}</p>
+
+<div class="tiles">
+  {{range .Tiles}}<div class="tile">
+    <div class="tile-label">{{.Label}}</div>
+    <div class="tile-value">{{.Value}}</div>
+    {{if .Delta}}<div class="delta {{if eq .Dir "flat"}}flat{{else if .Good}}good{{else}}bad{{end}}">
+      <span aria-hidden="true">{{if eq .Dir "up"}}▲{{else if eq .Dir "down"}}▼{{else}}●{{end}}</span>
+      {{if eq .Dir "up"}}Up {{else if eq .Dir "down"}}Down {{end}}{{.Delta}}
+    </div>{{else}}<div class="delta flat">No earlier data</div>{{end}}
+  </div>{{end}}
+</div>
+<p class="compare">Changes are against the {{.PrevLabel}} before.</p>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Visitors and page views</h2>
+    <div class="legend">
+      <span><i class="key k1"></i>Visitors</span>
+      <span><i class="key k2"></i>Page views</span>
+    </div>
+  </div>
+  {{if .Empty}}<p class="empty">Nothing recorded for this period yet. See <a href="/sites/{{.Site.ID}}/setup">Setup</a> for the tracking snippet.</p>
+  {{else}}<div id="chart" class="chart"></div>
+  <script type="application/json" id="chart-data">{{.Chart}}</script>
+  <details class="tableview">
+    <summary>Show as a table</summary>
+    <div class="scroll"><table class="plain">
+      <thead><tr><th scope="col">{{if .Period.Hourly}}Hour{{else}}Day{{end}}</th><th scope="col" class="n">Visitors</th><th scope="col" class="n">Page views</th></tr></thead>
+      <tbody>{{range .Rows}}<tr><td>{{.Label}}</td><td class="n">{{num .Visitors}}</td><td class="n">{{num .Views}}</td></tr>{{end}}</tbody>
+    </table></div>
+  </details>{{end}}
+</section>
+
+<div class="grid">
+  {{range .Cards}}<section class="card" id="card-{{.Def.ID}}">{{template "panel" .Panel}}</section>{{end}}
+  <section class="card" id="props"><div class="card-head"><h2>Event properties</h2></div><p class="empty">Choose “Properties” beside an event to see what was sent with it.</p></section>
+</div>
+{{template "bottom" .Base}}

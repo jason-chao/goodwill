@@ -1,0 +1,20 @@
+# Build output
+/goodwill
+/dist/
+
+# Databases and local configuration
+*.db
+*.db-shm
+*.db-wal
+*.mmdb
+*.mmdb.gz
+/goodwill.toml
+
+# Deployment notes for a particular installation never belong in the repository
+/deploy.local/
+
+# Editors and tooling
+.DS_Store
+.idea/
+.vscode/
+node_modules/

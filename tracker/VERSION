@@ -1,0 +1,5 @@
+source: https://github.com/umami-software/umami.git
+tag: v3.4.0
+commit: ec0ff50388c264ed8ce46f00967e92f7e71476ae
+endpoint: /api/send
+sha256: 654f12c7548be726eba5b71d5ef8bffc2a41a39a0053e2a49a847869ccd7ac3f
