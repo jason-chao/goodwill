@@ -1,0 +1,9 @@
+.git
+.github
+deploy.local
+dist
+goodwill
+node_modules
+*.db
+*.db-shm
+*.db-wal

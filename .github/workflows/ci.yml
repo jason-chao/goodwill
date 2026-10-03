@@ -50,3 +50,22 @@ jobs:
         with:
           name: goodwill-linux-${{ matrix.goarch }}
           path: dist/
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t goodwill:ci --build-arg VERSION=${GITHUB_SHA::7} .
+      - name: Smoke test
+        run: |
+          docker run -d --name goodwill -p 127.0.0.1:8080:8080 goodwill:ci
+          for i in $(seq 1 20); do
+            curl -fsS http://127.0.0.1:8080/api/heartbeat && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8080/api/heartbeat
+          docker exec goodwill /goodwill health
+          docker exec goodwill /goodwill site add --name "CI"
+          docker exec goodwill /goodwill backup /data/ci-backup.db
+          docker logs goodwill

@@ -45,7 +45,7 @@ make build            # downloads a country database and builds ./goodwill
 <script defer src="https://stats.example.com/script.js" data-website-id="YOUR-WEBSITE-ID"></script>
 ```
 
-By default the public endpoint listens on `127.0.0.1:8080` and the dashboard on `127.0.0.1:8081`. [docs/install.md](docs/install.md) covers putting it behind a reverse proxy and running it as a service.
+By default the public endpoint listens on `127.0.0.1:8080` and the dashboard on `127.0.0.1:8081`. [docs/install.md](docs/install.md) covers putting it behind a reverse proxy, and running it as a service or in a container.
 
 ## Documentation
 

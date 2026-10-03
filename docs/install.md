@@ -87,6 +87,30 @@ sudo -u goodwill goodwill site list -config /etc/goodwill.toml
 
 Sites and settings can be changed while the server is running; it picks changes up within 15 seconds.
 
+## Running in a container
+
+The repository's `Dockerfile` builds an image that holds only the goodwill binary:
+
+```sh
+docker build -t goodwill .
+```
+
+[examples/docker-compose.yml](../examples/docker-compose.yml) runs it with the database in a volume and both listeners published on loopback only. Start it and run the other commands inside the container:
+
+```sh
+docker compose up -d
+docker compose exec goodwill /goodwill user add admin
+docker compose exec goodwill /goodwill site add --name "My site" --domains example.com
+```
+
+Things that differ from running the binary directly:
+
+- **Settings** are given as `GOODWILL_*` environment variables (see [Configuration](configuration.md)), or by mounting a file and passing `-config`.
+- **Trusted proxies.** With Docker's default bridge network, a reverse proxy on the host does not appear as `127.0.0.1` but as the bridge gateway. The example trusts `172.16.0.0/12` for that reason; narrow it to your network if you can.
+- **The dashboard** is whatever you publish port 8081 on. Keep it on `127.0.0.1` or a private address.
+- **Paths are the container's.** `goodwill backup /data/backups/today.db` writes into the data volume.
+- **Health.** The image has no shell or curl; its health check runs `goodwill health`, which asks the server's own heartbeat endpoint.
+
 ## Backups
 
 ```sh

@@ -1,0 +1,36 @@
+# Example Compose file. Build the image first, from the repository root:
+#
+#   docker build -t goodwill .
+#
+# then, in the directory holding this file:
+#
+#   docker compose up -d
+#   docker compose exec goodwill /goodwill user add admin
+#   docker compose exec goodwill /goodwill site add --name "My site" --domains example.com
+
+services:
+  goodwill:
+    image: goodwill
+    restart: unless-stopped
+    ports:
+      # Public endpoint. Put a reverse proxy with HTTPS in front of it.
+      - "127.0.0.1:8080:8080"
+      # Dashboard. Published on loopback only; do not expose it to the internet.
+      - "127.0.0.1:8081:8081"
+    environment:
+      # Where your reverse proxy's connections arrive from. With Docker's
+      # default bridge network a proxy on the host appears as the bridge
+      # gateway, which is inside this range.
+      GOODWILL_TRUSTED_PROXIES: "172.16.0.0/12"
+      GOODWILL_PUBLIC_URL: "https://stats.example.com"
+      # A soft ceiling for the Go heap.
+      GOMEMLIMIT: "64MiB"
+    volumes:
+      - goodwill-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+volumes:
+  goodwill-data:

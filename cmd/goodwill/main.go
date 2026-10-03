@@ -46,6 +46,7 @@ Usage:
   goodwill site key ID                issue a new ingest key for a site
   goodwill user add USERNAME          create a dashboard user or reset its password
   goodwill backup FILE                write a consistent copy of the database
+  goodwill health                     check that a running server answers
   goodwill version                    print the version
 
 Every command accepts -config FILE (or the GOODWILL_CONFIG environment
@@ -70,6 +71,8 @@ func main() {
 		err = cmdUser(args)
 	case "backup":
 		err = cmdBackup(args)
+	case "health":
+		err = cmdHealth(args)
 	case "version", "-v", "--version":
 		fmt.Println("goodwill", version)
 	case "help", "-h", "--help":
@@ -147,6 +150,37 @@ func cmdBackup(args []string) error {
 		return err
 	}
 	fmt.Println("backup written to", dest)
+	return nil
+}
+
+// cmdHealth asks the running server's public listener whether it is up. It
+// exists so that a container, which has no curl, can check itself.
+func cmdHealth(args []string) error {
+	fs, path := newFlags("health")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	cfg, err := config.Load(*path)
+	if err != nil {
+		return err
+	}
+	host, port, err := net.SplitHostPort(cfg.Server.PublicListen)
+	if err != nil {
+		return err
+	}
+	if ip := net.ParseIP(host); host == "" || (ip != nil && ip.IsUnspecified()) {
+		host = "127.0.0.1"
+	}
+	client := &http.Client{Timeout: 3 * time.Second}
+	resp, err := client.Get("http://" + net.JoinHostPort(host, port) + "/api/heartbeat")
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("server answered %s", resp.Status)
+	}
+	fmt.Println("ok")
 	return nil
 }
 
