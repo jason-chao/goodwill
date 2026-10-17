@@ -28,7 +28,6 @@
 </main>
 <footer class="foot">
   <span>goodwill {{.Version}}</span>
-  {{if .GeoNote}}<span>{{.GeoNote}}</span>{{end}}
 </footer>
 </body>
 </html>
@@ -65,8 +64,11 @@
   </tbody>
 </table>
 {{if .MoreURL}}<button type="button" class="plain more" hx-get="{{.MoreURL}}" hx-target="#card-{{.CardID}}" hx-swap="innerHTML">Show all</button>{{end}}
+{{template "geocredit" .GeoCredit}}
 {{else}}<p class="empty">Nothing recorded for this period.</p>{{end}}
 {{end}}
+
+{{define "geocredit"}}{{if .}}<p class="credit">{{if .URL}}<a href="{{.URL}}" rel="noopener" target="_blank">{{.Text}}</a>{{else}}{{.Text}}{{end}}</p>{{end}}{{end}}
 
 {{define "props"}}
 <div class="card-head"><h2>Properties of “{{.Name}}”</h2></div>
@@ -102,6 +104,7 @@
     <thead><tr><th scope="col">Time</th><th scope="col">What</th><th scope="col">Page</th><th scope="col">Country</th><th scope="col">Browser</th><th scope="col">Came from</th></tr></thead>
     <tbody>{{range .Recent}}<tr><td class="time">{{.Time}}</td><td>{{.What}}</td><td>{{.Path}}</td><td{{if .Country}} data-country="{{.Country}}"{{end}}>{{.Country}}</td><td>{{.Browser}}</td><td>{{.Referrer}}</td></tr>{{end}}</tbody>
   </table></div>
+  {{template "geocredit" .GeoCredit}}
   {{else}}<p class="empty">Nothing in the last 30 minutes.</p>{{end}}
 </section>
 {{end}}

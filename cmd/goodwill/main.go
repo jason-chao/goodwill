@@ -269,12 +269,14 @@ func cmdServe(args []string) error {
 		return err
 	}
 	defer gdb.Close()
-	geoNote := cfg.Geo.Attribution
+	// The credit is shown next to location data, not on every page.
+	geoCredit := dashboard.GeoCredit{Text: cfg.Geo.Attribution}
 	switch {
 	case gdb == nil:
 		slog.Warn("no location database: countries will not be recorded; set geo.path to an .mmdb file")
 	case cfg.Geo.Path == "":
-		geoNote = "IP geolocation by DB-IP (https://db-ip.com)"
+		// The DB-IP Lite licence asks for a link on pages that show its results.
+		geoCredit = dashboard.GeoCredit{Text: "IP geolocation by DB-IP", URL: "https://db-ip.com"}
 		slog.Info("location lookups enabled", "source", gdb.Source)
 	default:
 		slog.Info("location lookups enabled", "source", gdb.Source)
@@ -294,7 +296,7 @@ func cmdServe(args []string) error {
 		st.Close()
 		return err
 	}
-	dash, err := dashboard.New(st, &auth.Sessions{Store: st, Secure: cfg.Server.SecureCookies}, version, geoNote, cfg.Server.PublicURL)
+	dash, err := dashboard.New(st, &auth.Sessions{Store: st, Secure: cfg.Server.SecureCookies}, version, geoCredit, cfg.Server.PublicURL)
 	if err != nil {
 		st.Close()
 		return err

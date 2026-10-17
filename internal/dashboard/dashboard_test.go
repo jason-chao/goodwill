@@ -84,7 +84,7 @@ func setup(t *testing.T) (*client, *store.Store, *store.Site) {
 	ev(store.KindPageview, "B", "2", "/<script>alert(1)</script>", func(e *store.Event) { e.Channel, e.Country = "direct", "" })
 	st.Flush()
 
-	srv, err := New(st, &auth.Sessions{Store: st}, "test", "geo note", "https://stats.example.com")
+	srv, err := New(st, &auth.Sessions{Store: st}, "test", GeoCredit{Text: "Geo credit", URL: "https://geo.example"}, "https://stats.example.com")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -205,7 +205,11 @@ func TestPages(t *testing.T) {
 	}
 
 	page := body("/")
-	has("/", page, "Demo &lt;site&gt;", "Visitors today", "geo note", "<svg")
+	has("/", page, "Demo &lt;site&gt;", "Visitors today", "<svg")
+	// The location credit belongs beside location data, not on every page.
+	if strings.Contains(page, "Geo credit") {
+		t.Error("the sites list shows no location data but carries the credit")
+	}
 
 	page = body("/sites/1?period=today")
 	has("site", page, "Demo &lt;site&gt;", `"visitors":[`, `"timezone":"Europe/London"`, "Bounce rate",
@@ -219,6 +223,26 @@ func TestPages(t *testing.T) {
 	// Two visitors, two visits, three page views; one visit is a single page.
 	for _, want := range []string{`<div class="tile-value">2</div>`, `<div class="tile-value">3</div>`, `<div class="tile-value">50%</div>`} {
 		has("site tiles", page, want)
+	}
+
+	// One credit, as a link, in the Locations card only.
+	if n := strings.Count(page, "Geo credit"); n != 1 {
+		t.Errorf("site page shows the location credit %d times, want 1", n)
+	}
+	has("credit", page, `<a href="https://geo.example" rel="noopener" target="_blank">Geo credit</a>`)
+	if i, j := strings.Index(page, `id="card-locations"`), strings.Index(page, "Geo credit"); i < 0 || j < i ||
+		j > strings.Index(page, `id="card-tech"`) {
+		t.Error("the location credit is not inside the Locations card")
+	}
+	has("locations panel", body("/sites/1/panel?dim=city&period=today"), "Nothing recorded")
+	if strings.Contains(body("/sites/1/panel?dim=city&period=today"), "Geo credit") {
+		t.Error("an empty location breakdown carries the credit")
+	}
+	if !strings.Contains(body("/sites/1/panel?dim=country&period=today"), "Geo credit") {
+		t.Error("the country breakdown loaded on its own lacks the credit")
+	}
+	if strings.Contains(body("/sites/1/panel?dim=browser&period=today"), "Geo credit") {
+		t.Error("a non-location breakdown carries the credit")
 	}
 
 	page = body("/sites/1?period=30d")
@@ -251,10 +275,17 @@ func TestPages(t *testing.T) {
 	}
 
 	page = body("/sites/1/realtime")
-	has("realtime", page, "Visitors in the last 5 minutes", "Latest activity", "signup", `hx-trigger="every 5s"`)
+	has("realtime", page, "Visitors in the last 5 minutes", "Latest activity", "signup", `hx-trigger="every 5s"`, "Geo credit")
 	has("realtime data", body("/sites/1/realtime/data"), "Page views and events per minute")
 
+	anon := &client{t: t, h: c.h}
+	if w := anon.do("GET", "/login", nil, nil); w.Code != 200 || strings.Contains(w.Body.String(), "Geo credit") {
+		t.Errorf("sign-in page: status %d, or it carries the credit", w.Code)
+	}
 	page = body("/sites/1/setup")
+	if strings.Contains(page, "Geo credit") {
+		t.Error("the setup page carries the credit")
+	}
 	has("setup", page, "https://stats.example.com/script.js", "data-website-id=", "One day at a time", "example.com")
 
 	for _, path := range []string{"/sites/999", "/sites/abc", "/nope"} {

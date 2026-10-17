@@ -27,19 +27,26 @@ type Server struct {
 	tmpl     *template.Template
 	static   http.Handler
 	version  string
-	geoNote  string
+	geo      GeoCredit
 	public   string
 
 	// Now is the clock; tests replace it.
 	Now func() time.Time
 }
 
-// New builds the dashboard. geoNote is the attribution shown in the footer
-// for the location database in use, if any.
+// GeoCredit is the attribution a location database asks for. It is shown
+// next to location data only, on the pages that display it.
+type GeoCredit struct {
+	Text string
+	URL  string // optional link
+}
+
+// New builds the dashboard. geo is the credit for the location database in
+// use; leave it empty if none is needed.
 //
 // publicURL is the address visitors' browsers reach the public listener at;
 // it is only used to fill in the tracking snippet.
-func New(st *store.Store, sessions *auth.Sessions, version, geoNote, publicURL string) (*Server, error) {
+func New(st *store.Store, sessions *auth.Sessions, version string, geo GeoCredit, publicURL string) (*Server, error) {
 	tmpl, err := template.New("").Funcs(funcs).ParseFS(web.FS, "templates/*.html")
 	if err != nil {
 		return nil, err
@@ -49,7 +56,7 @@ func New(st *store.Store, sessions *auth.Sessions, version, geoNote, publicURL s
 		return nil, err
 	}
 	return &Server{
-		store: st, sessions: sessions, tmpl: tmpl, version: version, geoNote: geoNote,
+		store: st, sessions: sessions, tmpl: tmpl, version: version, geo: geo,
 		public: strings.TrimRight(publicURL, "/"),
 		static: http.StripPrefix("/static/", http.FileServerFS(static)),
 		Now:    time.Now,
@@ -117,11 +124,10 @@ type base struct {
 	Username string
 	CSRF     string
 	Version  string
-	GeoNote  string
 }
 
 func (s *Server) base(c *ctx, title string) base {
-	b := base{Title: title, Version: s.version, GeoNote: s.geoNote}
+	b := base{Title: title, Version: s.version}
 	if c != nil && c.sess != nil {
 		b.Username, b.CSRF = c.sess.Username, c.sess.CSRF
 	}
@@ -502,9 +508,17 @@ func (s *Server) realtimeView(site *store.Site) (map[string]any, error) {
 		feed = append(feed, recent{time.Unix(r.TS, 0).In(site.Location()).Format("15:04:05"),
 			what, r.Path, r.Country, r.Browser, r.RefHost})
 	}
+	var credit *GeoCredit
+	for _, r := range feed {
+		if r.Country != "" && s.geo.Text != "" {
+			credit = &s.geo
+			break
+		}
+	}
 	return map[string]any{
 		"Site": site, "Active": rt.Active, "Bars": bars, "Peak": peak, "Total": total, "Recent": feed,
-		"First": bars[0].Label, "Last": bars[len(bars)-1].Label,
+		"GeoCredit": credit,
+		"First":     bars[0].Label, "Last": bars[len(bars)-1].Label,
 	}, nil
 }
 

@@ -95,6 +95,7 @@ type panelView struct {
 	Rows        []panelRow
 	MoreURL     string
 	Active      string // value of the current filter on this dimension, if any
+	GeoCredit   *GeoCredit
 }
 
 func (s *Server) buildPanel(site *store.Site, p period, filters []store.Filter, dim string, limit int) (panelView, error) {
@@ -135,6 +136,9 @@ func (s *Server) buildPanel(site *store.Site, p period, filters []store.Filter, 
 		if r.Visitors > top {
 			top = r.Visitors
 		}
+	}
+	if card.ID == "locations" && len(rows) > 0 && s.geo.Text != "" {
+		pv.GeoCredit = &s.geo
 	}
 	for _, r := range rows {
 		row := panelRow{Label: r.Value, Visitors: r.Visitors, Count: r.Count}

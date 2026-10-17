@@ -39,8 +39,8 @@ path = "/var/lib/goodwill/goodwill.db"
 # city lookups for sites that ask for them. Default: none.   GOODWILL_GEO_PATH
 # path = "/var/lib/goodwill/GeoLite2-City.mmdb"
 
-# Credit shown in the dashboard footer when geo.path is set, if the
-# database's licence asks for one.                    GOODWILL_GEO_ATTRIBUTION
+# Credit shown beside location data in the dashboard when geo.path is set,
+# if the database's licence asks for one.                    GOODWILL_GEO_ATTRIBUTION
 # attribution = "This product includes GeoLite2 data created by MaxMind, available from https://www.maxmind.com"
 
 [limits]

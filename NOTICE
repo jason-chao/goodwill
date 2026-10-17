@@ -23,8 +23,9 @@ Included in binaries built with "make build"
 IP to Country Lite database by DB-IP (https://db-ip.com), licensed under the
 Creative Commons Attribution 4.0 International licence
 (https://creativecommons.org/licenses/by/4.0/). The database is downloaded at
-build time and is not part of this repository. The dashboard footer carries
-the attribution "IP geolocation by DB-IP" whenever this database is in use.
+build time and is not part of this repository. Whenever this database is in
+use, the dashboard links to DB-IP ("IP geolocation by DB-IP") beside the
+location data it shows, as the licence asks for pages that display results.
 
 Go modules compiled into the binary
 -----------------------------------

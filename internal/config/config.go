@@ -47,8 +47,8 @@ type Geo struct {
 	// Path is an optional .mmdb location database. It replaces the built-in
 	// country database.
 	Path string `toml:"path"`
-	// Attribution is shown in the dashboard footer when Path is set, for
-	// databases whose licence asks for a credit.
+	// Attribution is shown next to location data in the dashboard when Path
+	// is set, for databases whose licence asks for a credit.
 	Attribution string `toml:"attribution"`
 }
 

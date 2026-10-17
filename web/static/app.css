@@ -151,6 +151,8 @@ td.label a { position: relative; text-decoration: none; }
 td.label a:hover { text-decoration: underline; }
 table.bars tr:hover .bar { filter: saturate(1.6) brightness(0.96); }
 .more { margin-top: 10px; }
+.credit { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.credit a { color: inherit; }
 table.plain th[scope="row"] { color: var(--ink-2); font-size: 14px; padding: 6px 16px 6px 0; width: 1%; }
 table.plain td { padding: 5px 12px 5px 0; border-top: 1px solid var(--grid); overflow-wrap: anywhere; }
 table.plain td.n { padding-right: 0; padding-left: 12px; }

@@ -16,7 +16,7 @@ Pass a TOML file with `-config FILE` or the `GOODWILL_CONFIG` environment variab
 | `server.secure_cookies` | `GOODWILL_SECURE_COOKIES` | `false` | Mark the dashboard session cookie HTTPS-only |
 | `database.path` | `GOODWILL_DATABASE_PATH` | `goodwill.db` | The SQLite database file |
 | `geo.path` | `GOODWILL_GEO_PATH` | none | A MaxMind DB (`.mmdb`) file to use for location lookups |
-| `geo.attribution` | `GOODWILL_GEO_ATTRIBUTION` | none | Credit shown in the dashboard footer when `geo.path` is set |
+| `geo.attribution` | `GOODWILL_GEO_ATTRIBUTION` | none | Credit shown beside location data in the dashboard when `geo.path` is set |
 | `limits.events_per_minute` | `GOODWILL_EVENTS_PER_MINUTE` | `600` | Events accepted per minute from one address; `0` turns the limit off |
 | `limits.max_body_bytes` | `GOODWILL_MAX_BODY_BYTES` | `65536` | Largest accepted event request |
 
@@ -26,7 +26,7 @@ A misspelt setting in the file is an error rather than being ignored.
 
 Location comes from looking up the visitor's address in a database file. The address itself is not stored.
 
-- **Built in:** a binary made with `make build` contains the [DB-IP](https://db-ip.com) IP to Country Lite database (CC BY 4.0), which gives the country. It is as recent as the build; rebuild to refresh it.
+- **Built in:** a binary made with `make build` contains the [DB-IP](https://db-ip.com) IP to Country Lite database (CC BY 4.0), which gives the country. It is as recent as the build; rebuild to refresh it. Its licence asks for a link to DB-IP on pages that show its results, so the dashboard shows one beside location data (the Locations card and the realtime feed), and nowhere else.
 - **Your own file:** set `geo.path` to any MaxMind DB file. This replaces the built-in database. A city-level file, such as MaxMind's GeoLite2 City or DB-IP's City Lite, also enables regions and cities for sites that ask for them. You download and update the file yourself; MaxMind's requires a free account. If its licence asks for a credit, put the text in `geo.attribution`.
 - **None:** a binary made with `make build-nogeo` and no `geo.path` records no location.
 
