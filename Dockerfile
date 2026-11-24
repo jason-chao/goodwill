@@ -18,15 +18,18 @@ RUN [ -f internal/geo/data/country.mmdb.gz ] || ./scripts/fetch-geo.sh
 ARG VERSION=dev
 RUN CGO_ENABLED=0 go build -trimpath -tags embedgeo \
         -ldflags "-s -w -X main.version=${VERSION}" -o /out/goodwill ./cmd/goodwill \
-    && mkdir -p /out/data /out/tmp \
-    && chmod 1777 /out/tmp
+    && mkdir -p /out/data /out/root/tmp \
+    && chmod 1777 /out/root/tmp
 
 FROM scratch
 COPY --from=build /out/goodwill /goodwill
 # An empty data directory owned by the runtime user, so a fresh volume is
-# writable, and a /tmp for unpacking the country database.
+# writable.
 COPY --from=build --chown=65532:65532 /out/data /data
-COPY --from=build /out/tmp /tmp
+# A world-writable /tmp, which SQLite needs for large sorts and groupings.
+# It is copied as part of a tree on purpose: copying a folder straight to
+# /tmp copies only its contents, and the new /tmp would not be writable.
+COPY --from=build /out/root/ /
 
 USER 65532:65532
 ENV GOODWILL_DATABASE_PATH=/data/goodwill.db \

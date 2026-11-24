@@ -1,6 +1,7 @@
 package store
 
 import (
+	"database/sql"
 	"path/filepath"
 	"reflect"
 	"testing"
@@ -303,4 +304,31 @@ func TestQueueRefusesWhenFull(t *testing.T) {
 		t.Errorf("full queue: got %v, want ErrQueueFull", err)
 	}
 	st.writer = nil
+}
+
+// A container whose temporary folder is not writable must still answer
+// queries: temporary data then stays in memory.
+func TestUnwritableTempDir(t *testing.T) {
+	t.Setenv("TMPDIR", filepath.Join(t.TempDir(), "missing"))
+	if tempDirWritable() {
+		t.Fatal("a missing temporary folder was reported as writable")
+	}
+	st, err := Open(filepath.Join(t.TempDir(), "m.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer st.Close()
+	for name, db := range map[string]interface{ QueryRow(string, ...any) *sql.Row }{"writer": st.w, "reader": st.r} {
+		var mode int
+		if err := db.QueryRow("pragma temp_store").Scan(&mode); err != nil {
+			t.Fatal(err)
+		}
+		if mode != 2 {
+			t.Errorf("%s connection: temp_store = %d, want 2 (memory)", name, mode)
+		}
+	}
+	t.Setenv("TMPDIR", t.TempDir())
+	if !tempDirWritable() {
+		t.Error("a writable temporary folder was reported as unwritable")
+	}
 }

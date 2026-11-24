@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"net/url"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -36,7 +38,12 @@ type Store struct {
 // Open opens (and creates if needed) the database at path and applies any
 // pending migrations.
 func Open(path string) (*Store, error) {
-	w, err := sql.Open("sqlite", dsn(path, false))
+	memTemp := !tempDirWritable()
+	if memTemp {
+		slog.Warn("the temporary folder is not writable; SQLite will keep temporary data in memory",
+			"dir", os.TempDir())
+	}
+	w, err := sql.Open("sqlite", dsn(path, false, memTemp))
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +56,7 @@ func Open(path string) (*Store, error) {
 		w.Close()
 		return nil, err
 	}
-	r, err := sql.Open("sqlite", dsn(path, true))
+	r, err := sql.Open("sqlite", dsn(path, true, memTemp))
 	if err != nil {
 		w.Close()
 		return nil, err
@@ -58,7 +65,20 @@ func Open(path string) (*Store, error) {
 	return &Store{w: w, r: r}, nil
 }
 
-func dsn(path string, readOnly bool) string {
+// tempDirWritable reports whether a temporary file can be created. SQLite
+// writes one for large sorts and groupings, and fails the query with
+// "disk I/O error" if it cannot.
+func tempDirWritable() bool {
+	f, err := os.CreateTemp("", "goodwill-check-*")
+	if err != nil {
+		return false
+	}
+	f.Close()
+	os.Remove(f.Name())
+	return true
+}
+
+func dsn(path string, readOnly, memTemp bool) string {
 	q := url.Values{}
 	q.Add("_pragma", "busy_timeout(5000)")
 	q.Add("_pragma", "journal_mode(WAL)")
@@ -68,6 +88,9 @@ func dsn(path string, readOnly bool) string {
 	q.Add("_pragma", "cache_size(-4000)")
 	if readOnly {
 		q.Add("_pragma", "query_only(1)")
+	}
+	if memTemp {
+		q.Add("_pragma", "temp_store(MEMORY)")
 	}
 	return "file:" + path + "?" + q.Encode()
 }

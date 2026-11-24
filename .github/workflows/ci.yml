@@ -57,6 +57,12 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t goodwill:ci --build-arg VERSION=${GITHUB_SHA::7} .
+      - name: Image layout
+        run: |
+          # /tmp must be world-writable (drwxrwxrwt): SQLite needs it for large queries.
+          docker create --name inspect goodwill:ci >/dev/null
+          docker export inspect | tar -tvf - | grep -E ' tmp/?$' | tee /dev/stderr | grep -q '^drwxrwxrwt'
+          docker rm inspect >/dev/null
       - name: Smoke test
         run: |
           docker run -d --name goodwill -p 127.0.0.1:8080:8080 goodwill:ci
@@ -69,3 +75,4 @@ jobs:
           docker exec goodwill /goodwill site add --name "CI"
           docker exec goodwill /goodwill backup /data/ci-backup.db
           docker logs goodwill
+          ! docker logs goodwill 2>&1 | grep -q "temporary folder is not writable"
